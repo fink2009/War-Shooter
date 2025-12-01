@@ -132,12 +132,13 @@
         // ==================== GAME CONSTANTS ====================
         const CANVAS_WIDTH = 800;
         const CANVAS_HEIGHT = 600;
-        const TILE_SIZE = 32;
-        const GRAVITY = 0.5;
-        const PLAYER_SPEED = 4;
-        const JUMP_FORCE = -12;
-        const ENEMY_SPEED = 1;
-        const GAME_TIME = 400;
+        const TILE_SIZE = 32;   // Size of each tile in pixels
+        const GRAVITY = 0.5;    // Vertical acceleration in pixels per frame squared
+        const PLAYER_SPEED = 4; // Horizontal movement speed in pixels per frame
+        const JUMP_FORCE = -12; // Initial jump velocity in pixels per frame (negative = upward)
+        const ENEMY_SPEED = 1;  // Enemy horizontal speed in pixels per frame
+        const GAME_TIME = 400;  // Starting countdown timer in seconds
+        const STOMP_TOLERANCE = 10; // Pixels of leeway for stomp detection from player's feet
         
         // Colors
         const SKY_COLOR = '#5c94fc';
@@ -1091,7 +1092,8 @@
         
         function handleBlockCollisions(entity, blockList, isPlayer = false) {
             for (const block of blockList) {
-                if (block.broken || block.hit && block.constructor.name === 'QuestionBlock') continue;
+                // Skip broken blocks or already-hit question blocks
+                if (block.broken || (block.hit && block instanceof QuestionBlock)) continue;
                 if (!checkCollision(entity, block)) continue;
                 
                 const overlapX = Math.min(entity.x + entity.width, block.x + block.width) - 
@@ -1217,7 +1219,8 @@
                     // Player-enemy collision
                     if (checkCollision(player, enemy)) {
                         // Check if player is stomping (coming from above)
-                        if (player.velY > 0 && player.y + player.height - 10 < enemy.y + enemy.height / 2) {
+                        // Player must be falling (velY > 0) and player's feet must be above enemy's midpoint
+                        if (player.velY > 0 && player.y + player.height - STOMP_TOLERANCE < enemy.y + enemy.height / 2) {
                             enemy.stomp();
                             player.velY = JUMP_FORCE * 0.6; // Bounce
                         } else {
