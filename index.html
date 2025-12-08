@@ -1445,15 +1445,29 @@ function drawHUD() {
     ctx.fillText('SCORE', 10, 20);
     ctx.fillText(score.toString().padStart(6, '0'), 10, 35);
     
-    // Coins
+    // Coins - draw a coin icon
     ctx.fillStyle = COIN_COLOR;
-    ctx.fillText('⚫', 120, 20);
+    ctx.beginPath();
+    ctx.arc(128, 15, 6, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = '#ffec8b';
+    ctx.beginPath();
+    ctx.arc(126, 13, 2, 0, Math.PI * 2);
+    ctx.fill();
     ctx.fillStyle = '#000';
     ctx.fillText('x' + coins, 140, 20);
     
-    // Lives
+    // Lives - draw a heart
     ctx.fillStyle = '#e52521';
-    ctx.fillText('♥', 200, 20);
+    ctx.beginPath();
+    ctx.moveTo(208, 19);
+    ctx.bezierCurveTo(208, 16, 205, 13, 202, 13);
+    ctx.bezierCurveTo(200, 13, 198, 14, 197, 16);
+    ctx.bezierCurveTo(196, 14, 194, 13, 192, 13);
+    ctx.bezierCurveTo(189, 13, 186, 16, 186, 19);
+    ctx.bezierCurveTo(186, 21, 187, 23, 197, 28);
+    ctx.bezierCurveTo(207, 23, 208, 21, 208, 19);
+    ctx.fill();
     ctx.fillStyle = '#000';
     ctx.fillText('x' + lives, 220, 20);
     
@@ -1475,6 +1489,9 @@ function drawHUD() {
 function gameLoop(currentTime) {
     const deltaTime = currentTime - lastTime;
     lastTime = currentTime;
+    
+    // Update gamepad state
+    updateGamepad();
     
     update();
     draw();
@@ -1627,17 +1644,9 @@ window.onload = function() {
     // Start game loop
     lastTime = performance.now();
     requestAnimationFrame(gameLoop);
-    
-    // Update gamepad state regularly
-    setInterval(updateGamepad, 16);
 };
 
-// ============ SERVICE WORKER FOR OFFLINE SUPPORT (OPTIONAL) ============
-if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-        // Could register service worker here for offline play
-    });
-}
+
 
     </script>
 </body>
