@@ -257,6 +257,7 @@ let lastTime = 0, fps = 60, fpsCounter = 0, fpsTime = 0, debugMode = false;
 let respawnX = 100, respawnY = GROUND_Y - 40;
 let highScore = parseInt(localStorage.getItem('highScore')) || 0;
 let bestTime = parseInt(localStorage.getItem('bestTime')) || 0;
+let prevJumpState = false;
 
 // ============ UTILITY ============
 function checkCollision(a, b) {
@@ -411,10 +412,12 @@ class Player {
         const maxSpeed = MAX_SPEED * (this.starTimer > 0 ? STAR_SPEED_MULT : 1);
         this.velX = Math.max(-maxSpeed, Math.min(maxSpeed, this.velX));
         
-        // Jump buffering
-        if (keys['Space'] || keys['ArrowUp'] || keys['KeyW'] || touchState.jump || gamepadState.jump) {
+        // Jump buffering - only on key press (not while held)
+        const currentJumpState = keys['Space'] || keys['ArrowUp'] || keys['KeyW'] || touchState.jump || gamepadState.jump;
+        if (currentJumpState && !prevJumpState) {
             this.jumpBufferTimer = JUMP_BUFFER_TIME;
         }
+        prevJumpState = currentJumpState;
         
         // Jump with coyote time
         if (this.jumpBufferTimer > 0 && (this.grounded || this.coyoteTimer > 0)) {
@@ -424,7 +427,7 @@ class Player {
         }
         
         // Variable jump height
-        if (this.velY < 0 && !(keys['Space'] || keys['ArrowUp'] || keys['KeyW'] || touchState.jump || gamepadState.jump)) {
+        if (this.velY < 0 && !currentJumpState) {
             this.velY *= 0.5;
         }
         
@@ -1523,6 +1526,7 @@ function initGame() {
     checkpointActivated = false;
     respawnX = 100;
     respawnY = GROUND_Y - 40;
+    prevJumpState = false;
     
     createLevel();
     player = new Player(respawnX, respawnY);
